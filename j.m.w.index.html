@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Josinaldo Gás e Água</title>
+  <style>
+    /* Estilos Globais */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #000000, #FF4500, #FFD700);
+      color: #39FF14;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    .tela {
+      display: none;
+      padding: 20px;
+    }
+
+    .tela.ativa {
+      display: block;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background-color: black;
+      border: none;
+      color: #39FF14;
+      padding: 10px 20px;
+      margin: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #39FF14;
+      color: black;
+    }
+
+    input, textarea {
+      margin: 10px;
+      padding: 10px;
+      width: 80%;
+      border: 1px solid #39FF14;
+      border-radius: 5px;
+      background-color: black;
+      color: #39FF14;
+      font-size: 16px;
+    }
+
+    .produto {
+      background-color: #111;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .produto:hover {
+      background-color: #39FF14;
+      color: black;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin: 5px 0;
+    }
+
+    .resumo-pedido {
+      margin-top: 20px;
+    }
+
+    .ajuda {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px;
+    }
+
+    .oculto {
+      display: none;
+    }
+
+    /* Botões de Forma de Pagamento */
+    .botoes-pagamento {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .botoes-pagamento button {
+      width: 80%;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Tela Inicial -->
+  <div id="tela-inicial" class="tela ativa">
+    <h1>Josinaldo Gás e Água</h1>
+    <p>Precisa de ajuda? WhatsApp: +55 83 99847-4935</p>
+    <p>Horário de funcionamento: 07:30 às 18:00</p>
+    <p>Trabalhamos com pagamentos mensais para empresas, condomínios, etc.</p>
+    <button onclick="mostrarTela('cadastro')">FAZER CADASTRO</button>
+  </div>
+
+  <!-- Tela de Cadastro -->
+  <div id="cadastro" class="tela">
+    <h1>Cadastro do Cliente</h1>
+    <input type="text" id="nome" placeholder="Nome completo">
+    <input type="text" id="endereco" placeholder="Endereço completo">
+    <input type="tel" id="telefone" placeholder="Número de telefone">
+    <button onclick="confirmarCadastro()">CONFIRMAR CADASTRO</button>
+    <button onclick="mostrarTela('tela-inicial')">VOLTAR</button>
+  </div>
+
+  <!-- Área do Pedido -->
+  <div id="pedido" class="tela">
+    <h1>Escolha seu produto</h1>
+    <div class="produto">
+      <p>Água Ideal – R$ 12,00</p>
+      <div>
+        <button onclick="alterarQuantidade('agua-ideal', -1)">-</button>
+        <span id="quantidade-agua-ideal">0</span>
+        <button onclick="alterarQuantidade('agua-ideal', 1)">+</button>
+      </div>
+    </div>
+    <div class="produto">
+      <p>Água Indaiá – R$ 17,00</p>
+      <div>
+        <button onclick="alterarQuantidade('agua-indaia', -1)">-</button>
+        <span id="quantidade-agua-indaia">0</span>
+        <button onclick="alterarQuantidade('agua-indaia', 1)">+</button>
+      </div>
+    </div>
+    <div class="produto">
+      <p>Água Sublime – R$ 14,00</p>
+      <div>
+        <button onclick="alterarQuantidade('agua-sublime', -1)">-</button>
+        <span id="quantidade-agua-sublime">0</span>
+        <button onclick="alterarQuantidade('agua-sublime', 1)">+</button>
+      </div>
+    </div>
+    <div class="produto">
+      <p>Gás GLP – R$ 120,00</p>
+      <div>
+        <button onclick="alterarQuantidade('gas-glp', -1)">-</button>
+        <span id="quantidade-gas-glp">0</span>
+        <button onclick="alterarQuantidade('gas-glp', 1)">+</button>
+      </div>
+    </div>
+    <button onclick="mostrarTelaResumo()">VER CARRINHO</button>
+    <button onclick="mostrarTela('cadastro')">VOLTAR</button>
+  </div>
+
+  <!-- Resumo do Pedido -->
+  <div id="resumo-pedido" class="tela">
+    <h1>Resumo do Pedido</h1>
+    <ul id="lista-carrinho"></ul>
+    <p>Total: R$ <span id="total">0.00</span></p>
+    <input type="text" id="novo-endereco" placeholder="Novo endereço (opcional)">
+    <button onclick="mostrarTela('pagamento')">CONFIRMAR PEDIDO</button>
+    <button onclick="mostrarTela('pedido')">VOLTAR</button>
+  </div>
+
+  <!-- Formas de Pagamento -->
+  <div id="pagamento" class="tela">
+    <h1>Formas de Pagamento</h1>
+    <div class="botoes-pagamento">
+      <button onclick="selecionarPagamento('dinheiro')">Dinheiro</button>
+      <button onclick="selecionarPagamento('cartao')">Cartão</button>
+      <button onclick="selecionarPagamento('pix')">Pix</button>
+      <button onclick="selecionarPagamento('notinha')">Compra na Notinha</button>
+    </div>
+    <div id="campo-troco" class="oculto">
+      <p>Troco necessário:</p>
+      <input type="number" id="troco" placeholder="Valor do troco">
+    </div>
+    <div id="campo-data-notinha" class="oculto">
+      <p>Data para pagamento (Compra na Notinha):</p>
+      <input type="date" id="data-notinha" required>
+    </div>
+    <p>Pix:</p>
+    <p>Chave Pix: <span id="chave-pix">83999000858</span></p>
+    <button onclick="copiarPix()">COPIAR PIX</button>
+    <button onclick="mostrarTelaFinalizar()">CONTINUAR</button>
+    <button onclick="mostrarTela('resumo-pedido')">VOLTAR</button>
+  </div>
+
+  <!-- Finalizar Pedido -->
+  <div id="finalizar" class="tela">
+    <h1>Resumo Final</h1>
+    <div class="resumo-pedido">
+      <p><strong>Cliente:</strong> <span id="resumo-nome"></span></p>
+      <p><strong>Endereço:</strong> <span id="resumo-endereco"></span></p>
+      <p><strong>Telefone:</strong> <span id="resumo-telefone"></span></p>
+      <p><strong>Itens:</strong> <span id="resumo-itens"></span></p>
+      <p><strong>Total:</strong> R$ <span id="resumo-total"></span></p>
+      <p><strong>Forma de Pagamento:</strong> <span id="resumo-pagamento"></span></p>
+      <p><strong>Troco:</strong> <span id="resumo-troco"></span></p>
+      <p><strong>Data Notinha:</strong> <span id="resumo-data-notinha"></span></p>
+    </div>
+    <button onclick="enviarPedidoWhatsApp()">ENVIAR PELO WHATSAPP</button>
+    <button onclick="mostrarTela('pagamento')">VOLTAR</button>
+  </div>
+
+  <script>
+    // Variáveis globais
+    let carrinho = [];
+    let total = 0;
+    let cliente = {}; // Dados do cliente serão salvos apenas durante a sessão
+    const quantidades = {
+      'agua-ideal': 0,
+      'agua-indaia': 0,
+      'agua-sublime': 0,
+      'gas-glp': 0
+    };
+
+    // Função para alternar telas
+    function mostrarTela(telaId) {
+      const telas = document.querySelectorAll('.tela');
+      telas.forEach(tela => tela.classList.remove('ativa'));
+      document.getElementById(telaId).classList.add('ativa');
+
+      // Preencher automaticamente o cadastro se existir
+      if (telaId === 'cadastro' && cliente.nome) {
+        document.getElementById('nome').value = cliente.nome;
+        document.getElementById('endereco').value = cliente.endereco;
+        document.getElementById('telefone').value = cliente.telefone;
+      }
+    }
+
+    // Função para alterar quantidade de produtos
+    function alterarQuantidade(produto, valor) {
+      if (quantidades[produto] + valor >= 0) {
+        quantidades[produto] += valor;
+        document.getElementById(`quantidade-${produto}`).textContent = quantidades[produto];
+      }
+    }
+
+    // Função para exibir resumo do pedido
+    function mostrarTelaResumo() {
+      carrinho = [];
+      total = 0;
+
+      for (const [produto, quantidade] of Object.entries(quantidades)) {
+        if (quantidade > 0) {
+          const preco = getPrecoProduto(produto);
+          carrinho.push({ nome: getNomeProduto(produto), quantidade, preco });
+          total += quantidade * preco;
+        }
+      }
+
+      const listaCarrinho = document.getElementById('lista-carrinho');
+      listaCarrinho.innerHTML = '';
+      carrinho.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.quantidade}x ${item.nome} - R$ ${(item.quantidade * item.preco).toFixed(2)}`;
+        listaCarrinho.appendChild(li);
+      });
+
+      document.getElementById('total').textContent = total.toFixed(2);
+      mostrarTela('resumo-pedido');
+    }
+
+    // Função para obter preço do produto
+    function getPrecoProduto(produto) {
+      const precos = {
+        'agua-ideal': 12,
+        'agua-indaia': 17,
+        'agua-sublime': 14,
+        'gas-glp': 120
+      };
+      return precos[produto];
+    }
+
+    // Função para obter nome do produto
+    function getNomeProduto(produto) {
+      const nomes = {
+        'agua-ideal': 'Água Ideal',
+        'agua-indaia': 'Água Indaiá',
+        'agua-sublime': 'Água Sublime',
+        'gas-glp': 'Gás GLP'
+      };
+      return nomes[produto];
+    }
+
+    // Função para copiar chave Pix
+    function copiarPix() {
+      const chavePix = document.getElementById('chave-pix').textContent;
+      navigator.clipboard.writeText(chavePix).then(() => {
+        alert('Chave Pix copiada!');
+      });
+    }
+
+    // Simulação de cadastro
+    function confirmarCadastro() {
+      const nome = document.getElementById('nome').value;
+      const endereco = document.getElementById('endereco').value;
+      const telefone = document.getElementById('telefone').value;
+
+      if (nome && endereco && telefone) {
+        cliente = { nome, endereco, telefone }; // Salva apenas na sessão atual
+        alert('Cadastro realizado com sucesso!');
+        mostrarTela('pedido');
+      } else {
+        alert('Preencha todos os campos!');
+      }
+    }
+
+    // Função para selecionar forma de pagamento
+    function selecionarPagamento(forma) {
+      document.querySelector('#resumo-pagamento').textContent = forma.charAt(0).toUpperCase() + forma.slice(1);
+      document.getElementById('campo-troco').classList.toggle('oculto', forma !== 'dinheiro');
+      document.getElementById('campo-data-notinha').classList.toggle('oculto', forma !== 'notinha');
+    }
+
+    // Função para finalizar pedido
+    function mostrarTelaFinalizar() {
+      const novoEndereco = document.getElementById('novo-endereco').value || cliente.endereco;
+      const formaPagamento = document.querySelector('#resumo-pagamento').textContent.toLowerCase();
+      const troco = formaPagamento === 'dinheiro' ? document.getElementById('troco').value || 'Não informado' : 'Não se aplica';
+      const dataNotinha = formaPagamento === 'notinha' ? document.getElementById('data-notinha').value || 'Não informado' : 'Não se aplica';
+
+      document.getElementById('resumo-nome').textContent = cliente.nome;
+      document.getElementById('resumo-endereco').textContent = novoEndereco;
+      document.getElementById('resumo-telefone').textContent = cliente.telefone;
+      document.getElementById('resumo-itens').textContent = carrinho.map(item => `${item.quantidade}x ${item.nome}`).join(', ');
+      document.getElementById('resumo-total').textContent = total.toFixed(2);
+      document.getElementById('resumo-troco').textContent = troco;
+      document.getElementById('resumo-data-notinha').textContent = dataNotinha;
+
+      mostrarTela('finalizar');
+    }
+
+    // Função para enviar pedido pelo WhatsApp
+    function enviarPedidoWhatsApp() {
+      const formaPagamento = document.querySelector('#resumo-pagamento').textContent.toLowerCase();
+      const troco = formaPagamento === 'dinheiro' ? document.getElementById('troco').value || 'Não informado' : '';
+      const dataNotinha = formaPagamento === 'notinha' ? document.getElementById('data-notinha').value || 'Não informado' : '';
+
+      let mensagem = `
+        🛒 *PEDIDO JOSINALDO GÁS E ÁGUA*
+        👤 *Cliente:* ${cliente.nome}
+        🏠 *Endereço:* ${document.getElementById('resumo-endereco').textContent}
+        📞 *Telefone:* ${cliente.telefone}
+        📦 *Itens:* ${document.getElementById('resumo-itens').textContent}
+        💰 *Total:* R$ ${document.getElementById('resumo-total').textContent}
+        💳 *Forma de Pagamento:* ${document.getElementById('resumo-pagamento').textContent}
+      `;
+
+      if (troco) {
+        mensagem += `\n💵 *Troco:* ${troco}`;
+      }
+
+      if (dataNotinha) {
+        mensagem += `\n📅 *Data Notinha:* ${dataNotinha}`;
+      }
+
+      const url = `https://wa.me/5583998474935?text=${encodeURIComponent(mensagem.trim())}`;
+      window.open(url, '_blank');
+    }
+  </script>
+</body>
+</html>
